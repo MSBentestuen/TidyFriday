@@ -3,11 +3,14 @@ title: "TidyFriday"
 author: "Lisbeth, Kirstine & Marlene"
 format: 
  revealjs: 
+  code-fold: true
   progress: TRUE
   slide-number: true
   preview-links: auto
   css: styles.css
   embed-resources: true
+  smaller: true
+  scrollable: true
 editor: visual
 ---
 
@@ -21,8 +24,8 @@ editor: visual
 library(tidyverse)
 colony <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/colony.csv')
 
-colony %>% 
-  relocate(colony_lost, colony_added, .after = state)
+knitr::kable(colony %>% 
+  relocate(colony_lost, colony_added, .after = state))
 ```
 
 
