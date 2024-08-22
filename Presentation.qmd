@@ -11,14 +11,21 @@ format:
 editor: visual
 ---
 
-## Data: 
+## Bee Colonies Lost {background-color="black" background-image="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExazh3NTdlZ3ptbGJwa2oyeTJ3MjU1aTJoOTkxMTI2MTllYWZiczRkdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Yr5cLTZS4Gp3CQRVHs/giphy.webp" background-size="400px"}
+
+
+## Data and variables {.smaller}  
 
 ```{r}
+#| echo: true
+library(tidyverse)
+colony <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/colony.csv')
 
+colony %>% 
+  relocate(colony_lost, colony_added, .after = state)
 ```
 
 
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
 
 ## Bullets
 
