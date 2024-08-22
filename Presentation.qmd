@@ -1,6 +1,13 @@
 ---
 title: "TidyFriday"
-format: revealjs
+author: "Lisbeth, Kirstine & Marlene"
+format: 
+ revealjs: 
+  progress: TRUE
+  slide-number: true
+  preview-links: auto
+  css: styles.css
+  embed-resources: true
 editor: visual
 ---
 
