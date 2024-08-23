@@ -1,6 +1,7 @@
 
 #install.packages("tidytuesdayR")
 library(tidytuesdayR)
+library(tidyverse)
 tidytuesdayR::tt_available()
 
 data <- tidytuesdayR::tt_load('2022-01-11')
@@ -31,27 +32,42 @@ data <- data %>%
 
 #Plot for each state
 ggplot(data = data, aes(x = year, y = colony_netto_sum, color = total_net)) + 
-  geom_line() +
+  geom_line(size= 1) +
   facet_wrap(~state) +
-  theme_bw()
+  theme_minimal() +
+  scale_color_gradient(low = "black", high = "yellow",
+                      name = "Bee balance", label = scales::comma) + 
+  labs(x = "Year",
+       y = "Yearly balance") +
+  scale_y_continuous(label = scales::comma)
 
 #install.packages("usmap")
 library(usmap)
 
 plot_usmap()
 
+
+
+#Overall map
+plot_usmap(data = data, values = "colony_netto_sum", color = "black",
+           exclude = c("Alaska", "Nevada", "New Hampshire", "Delaware", "Rhode Island", "District of Columbia")) +
+  scale_fill_continuous(low = "black", high = "yellow",
+                        name = "Bee balance", label = scales::comma)  + 
+  facet_wrap(~year, nrow = 2) +
+  theme(axis.text.y = element_blank()) +
+  theme_void()
+
+#One year
 wide <- data %>%
   select(state, year, colony_netto_sum) %>%
   tidyr::pivot_wider(,
                      names_from = year,
                      values_from = colony_netto_sum)
 
-plot_usmap(data = test, values = "pop_2022", color = "red") + 
-  scale_fill_continuous(name = "Population (2022)", label = scales::comma) + 
+plot_usmap(data = wide, values = "2021", color = "black") + 
+  scale_fill_continuous(low = "black", high = "yellow",
+                        name = "Netto development (2021)", label = scales::comma)  + 
   theme(legend.position = "right")
-
-plot_usmap(data = wide, values = "2015", color = "black") 
-
 
 
 total <- data %>%
@@ -65,7 +81,9 @@ wide <- tidyr::pivot_wider(total,
 new <- wide %>%
   mutate(difference = 2021 - 2015)
 
+unique(data$state)
 
+colony$months_rc <- recode(colony$months, "January-March" = 0)
 
 
 
