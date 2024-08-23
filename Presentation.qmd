@@ -59,6 +59,85 @@ knitr::kable(data %>%
 ## Plot 1: Bee Balance Overall
 
 = Kirstines plot
+```{r}
+#| echo: true
+#To make a dataset with only dat for the entire US 
+colony_balance <- colony %>% 
+  mutate(bee_balance = colony_added - colony_lost)
+
+US_total <- colony_balance %>%  
+  filter(state == "United States")
+
+#We want to plot year as a continous variable with the month data 
+US_total$months_num <- recode(US_total$months, "January-March" = 0, 	
+                              "April-June" = 0.25,
+                              "July-September" = 0.5,
+                              "October-December" = 0.75)
+
+#new column with the year and month merged 
+US_total_new_month <- US_total %>% 
+  mutate(year_month = (year + months_num))
+
+#Plot with lost bees accumulation
+G1 <- US_total_new_month %>% 
+  ggplot(aes(year_month, cumsum(replace_na(colony_lost, 0))/1e6)) +
+  geom_line(color = "red") +
+  theme_minimal(base_size = 14) +
+  labs(x = "Year",
+       y =  "Colonies Lost (Millions)") +
+  ggtitle("Lost Bee Colonies in The US") +
+  scale_y_continuous(breaks = c(0:10), 
+                     labels = label_comma()) +
+  scale_x_continuous(breaks = c(2015:2021), minor_breaks = seq(2015, 2021, 0.25))
+
+#Plot with added bees accumulation
+G2 <- US_total_new_month %>% 
+  ggplot(aes(year_month, cumsum(replace_na(colony_added, 0))/1e6)) +
+  geom_line(color = "green") +
+  theme_minimal(base_size = 14) +
+  labs(x = "Year",
+       y =  "Colonies Added (Millions)") +
+  ggtitle("Added Bee Colonies in The US") +
+  scale_y_continuous(breaks = c(0:10), 
+                     labels = label_comma()) +
+  scale_x_continuous(breaks = c(2015:2021), minor_breaks = seq(2015, 2021, 0.25))
+
+ggarrange(G1, G2)
+```
+
+```{r}
+#| echo: true
+#% colonies lost
+US_total_new_month %>% 
+  ggplot(aes(year_month, colony_lost_pct, fill = months)) +
+  geom_col(color = "yellow") +
+  theme_minimal(base_size = 16) +
+  scale_x_continuous(breaks = c(2015:2021)) +
+  scale_y_continuous(breaks = seq(0, 20, 5), limits = c(0, 20)) +
+  labs(x = "Year",
+       y =  "Colonies lost (%)",
+       fill = "Month") +
+  ggtitle("Lost Bee Colonies in The United States")
+```
+
+```{r}
+#| echo: true
+#Plot of the Bee balance in the US during the years 
+US_total_new_month %>% 
+  ggplot(aes(year_month, bee_balance)) +
+  geom_line() +
+  theme_minimal(base_size = 16) +
+  labs(x = "Year",
+       y =  "Bee Balance") +
+  ggtitle("Bee Balance in The US") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") + 
+  scale_y_continuous(breaks = c(-600000, -400000, -200000, 0,200000, 400000, 600000), 
+                     limits = c(-400000, 500000), 
+                     labels = label_comma()) +
+  scale_x_continuous(breaks = c(2015:2021), minor_breaks = seq(2015, 2021, 0.25))
+
+```
+
 
 ## Plot 2: Bee Balance per State
 
@@ -96,8 +175,7 @@ plot_usmap(data = data, values = "bee_balance", color = "black",
   theme_void()
 ```
 
-## {background-image="bee_balance_years.gif"}
-
+##  {background-image="bee_balance_years.gif"}
 
 ## Code for Animated Choropleth Map
 
@@ -176,4 +254,3 @@ map <- ggplot(usa_sf_merged) +
 
 # anim_save("bee_balance_years.gif", map_anim1)
 ```
-
