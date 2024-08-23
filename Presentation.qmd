@@ -30,7 +30,9 @@ knitr::kable(colony %>%
 
 
 
-## Gain or loose?
+## Bee Balance
+
+We focused on our variable: "bee_blance":
 
 ```{r}
 # Plot of sum(added - lost) per state
@@ -38,3 +40,18 @@ knitr::kable(colony %>%
 
 ```
 
+## Plot 1: Bee Balance Overall
+
+= Kirstines plot
+
+## Plot 2: Bee Balance per State
+
+= Lisbeths plot
+
+## Plot 3: Bee Balance on Choropleth Map
+
+= Lisbeths plot 
+
+## Plot 4: Animated Bee Balance
+
+= Marlenes plot
