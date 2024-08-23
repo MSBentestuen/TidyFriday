@@ -16,27 +16,43 @@ editor: visual
 
 ## Bee Colonies Lost {background-color="black" background-image="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExazh3NTdlZ3ptbGJwa2oyeTJ3MjU1aTJoOTkxMTI2MTllYWZiczRkdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Yr5cLTZS4Gp3CQRVHs/giphy.webp" background-size="400px"}
 
-
-## Data and variables {.smaller}  
+## Data and variables {.smaller}
 
 ```{r}
 #| echo: true
 library(tidyverse)
+library(usmap)
 colony <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/colony.csv')
 
 knitr::kable(colony %>% 
   relocate(colony_lost, colony_added, .after = state))
 ```
 
-
-
 ## Bee Balance
 
 We focused on our variable: "bee_blance":
 
 ```{r}
-# Plot of sum(added - lost) per state
+#| echo: true
+#Compute bee balance
+data <- colony %>%
+  mutate(quarterly_bee_balance = colony_added - colony_lost) %>%
+  group_by(year, state) %>%
+  summarize(bee_balance = sum(quarterly_bee_balance, na.rm = TRUE),
+            bee_lost = sum(colony_lost, na.rm = TRUE),
+            bee_gained = sum(colony_added, na.rm = TRUE)) %>%
+  ungroup
 
+#Compute total bee balance
+data <- data %>%
+  arrange(state) %>%
+  group_by(state) %>%
+  mutate(bee_balance_state = sum(bee_balance)) %>%
+  ungroup()
+
+#Table of sum(added - lost) per state
+knitr::kable(data %>% 
+  relocate(bee_lost, bee_gained, bee_balance, bee_balance_state, .after = state))
 
 ```
 
@@ -46,11 +62,39 @@ We focused on our variable: "bee_blance":
 
 ## Plot 2: Bee Balance per State
 
-= Lisbeths plot
+```{r}
+#| echo: true
+temp <- data %>%
+  filter(state != "United States")
+
+ggplot(data = temp, aes(x = year, y = bee_balance, color = bee_balance_state)) + 
+  geom_line(size= 1) +
+  facet_wrap(~state, nrow = 6) +
+  theme_minimal() +
+  scale_color_gradient(low = "black", high = "yellow",
+                      name = "Bee balance", label = scales::comma) + 
+  labs(x = "Year",
+       y = "Yearly balance") +
+  scale_x_continuous(breaks = c(2016,2018,2020), 
+                     minor_breaks = seq(2015, 2021, 1)) +
+  scale_y_continuous(label = scales::comma) +
+   geom_hline(yintercept=0, linetype="dashed", color = "red") +
+  theme(
+   axis.text.x = element_text(angle=45))
+```
 
 ## Plot 3: Bee Balance on Choropleth Map
 
-= Lisbeths plot 
+```{r}
+#| echo: true
+plot_usmap(data = data, values = "bee_balance", color = "black",
+           exclude = c("Alaska", "Nevada", "New Hampshire", "Delaware", "Rhode Island", "District of Columbia")) +
+  scale_fill_continuous(low = "black", high = "yellow",
+                        name = "Bee balance", label = scales::comma)  + 
+  facet_wrap(~year, nrow = 3) +
+  theme(axis.text.y = element_blank()) +
+  theme_void()
+```
 
 ## Plot 4: Animated Bee Balance
 
