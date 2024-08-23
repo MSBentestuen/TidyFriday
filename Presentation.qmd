@@ -31,23 +31,6 @@ knitr::kable(colony %>%
 
 ```{r}
 #| echo: true
-#% colonies lost
-US_total_new_month %>% 
-  ggplot(aes(year_month, colony_lost_pct, fill = months)) +
-  geom_col(color = "yellow") +
-  theme_minimal(base_size = 16) +
-  scale_x_continuous(breaks = c(2015:2021)) +
-  scale_y_continuous(breaks = seq(0, 20, 5), limits = c(0, 20)) +
-  labs(x = "Year",
-       y =  "Colonies lost (%)",
-       fill = "Month") +
-  ggtitle("Lost Bee Colonies in The United States")
-```
-
-## Lost vs added 
-
-```{r}
-#| echo: true
 #To make a dataset with only dat for the entire US 
 colony_balance <- colony %>% 
   mutate(bee_balance = colony_added - colony_lost)
@@ -64,7 +47,24 @@ US_total$months_num <- recode(US_total$months, "January-March" = 0,
 #new column with the year and month merged 
 US_total_new_month <- US_total %>% 
   mutate(year_month = (year + months_num))
+#% colonies lost
+US_total_new_month %>% 
+  ggplot(aes(year_month, colony_lost_pct, fill = months)) +
+  geom_col(color = "yellow") +
+  theme_minimal(base_size = 16) +
+  scale_x_continuous(breaks = c(2015:2021)) +
+  scale_y_continuous(breaks = seq(0, 20, 5), limits = c(0, 20)) +
+  labs(x = "Year",
+       y =  "Colonies lost (%)",
+       fill = "Month") +
+  ggtitle("Lost Bee Colonies in The United States")
 
+```
+
+## Lost vs added 
+
+```{r}
+#| echo: true
 #Plot with lost bees accumulation
 G1 <- US_total_new_month %>% 
   ggplot(aes(year_month, cumsum(replace_na(colony_lost, 0))/1e6)) +
