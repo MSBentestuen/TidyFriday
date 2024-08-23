@@ -27,37 +27,25 @@ knitr::kable(colony %>%
   relocate(colony_lost, colony_added, .after = state))
 ```
 
-## Bee Balance
-
-We focused on our variable: "bee_blance":
+## Lost Bee Colonies Quarterly
 
 ```{r}
 #| echo: true
-#Compute bee balance
-data <- colony %>%
-  mutate(quarterly_bee_balance = colony_added - colony_lost) %>%
-  group_by(year, state) %>%
-  summarize(bee_balance = sum(quarterly_bee_balance, na.rm = TRUE),
-            bee_lost = sum(colony_lost, na.rm = TRUE),
-            bee_gained = sum(colony_added, na.rm = TRUE)) %>%
-  ungroup
-
-#Compute total bee balance
-data <- data %>%
-  arrange(state) %>%
-  group_by(state) %>%
-  mutate(bee_balance_state = sum(bee_balance)) %>%
-  ungroup()
-
-#Table of sum(added - lost) per state
-knitr::kable(data %>% 
-  relocate(bee_lost, bee_gained, bee_balance, bee_balance_state, .after = state))
-
+#% colonies lost
+US_total_new_month %>% 
+  ggplot(aes(year_month, colony_lost_pct, fill = months)) +
+  geom_col(color = "yellow") +
+  theme_minimal(base_size = 16) +
+  scale_x_continuous(breaks = c(2015:2021)) +
+  scale_y_continuous(breaks = seq(0, 20, 5), limits = c(0, 20)) +
+  labs(x = "Year",
+       y =  "Colonies lost (%)",
+       fill = "Month") +
+  ggtitle("Lost Bee Colonies in The United States")
 ```
 
-## Plot 1: Bee Balance Overall
+## Lost vs added 
 
-= Kirstines plot
 ```{r}
 #| echo: true
 #To make a dataset with only dat for the entire US 
@@ -104,41 +92,61 @@ G2 <- US_total_new_month %>%
 ggarrange(G1, G2)
 ```
 
-```{r}
-#| echo: true
-#% colonies lost
-US_total_new_month %>% 
-  ggplot(aes(year_month, colony_lost_pct, fill = months)) +
-  geom_col(color = "yellow") +
-  theme_minimal(base_size = 16) +
-  scale_x_continuous(breaks = c(2015:2021)) +
-  scale_y_continuous(breaks = seq(0, 20, 5), limits = c(0, 20)) +
-  labs(x = "Year",
-       y =  "Colonies lost (%)",
-       fill = "Month") +
-  ggtitle("Lost Bee Colonies in The United States")
-```
+## Bee Balance
+
+We focused on our variable: "bee_balance":
 
 ```{r}
 #| echo: true
-#Plot of the Bee balance in the US during the years 
-US_total_new_month %>% 
-  ggplot(aes(year_month, bee_balance)) +
+#Compute bee balance
+data <- colony %>%
+  mutate(quarterly_bee_balance = colony_added - colony_lost) %>%
+  group_by(year, state) %>%
+  summarize(bee_balance = sum(quarterly_bee_balance, na.rm = TRUE),
+            bee_lost = sum(colony_lost, na.rm = TRUE),
+            bee_gained = sum(colony_added, na.rm = TRUE)) %>%
+  ungroup
+
+#Compute total bee balance
+data <- data %>%
+  arrange(state) %>%
+  group_by(state) %>%
+  mutate(bee_balance_state = sum(bee_balance)) %>%
+  ungroup()
+
+#Table of sum(added - lost) per state
+knitr::kable(data %>% 
+  relocate(bee_lost, bee_gained, bee_balance, bee_balance_state, .after = state))
+
+```
+
+##  Bee Balance Overall
+```{r}
+#| echo: true
+colony_balance <- colony %>% 
+  group_by(year, state) %>% 
+  summarise(year_sum = sum(colony_added - colony_lost, na.rm = TRUE))
+
+
+US <- colony_balance %>%  
+  filter(state == "United States")
+
+US %>% 
+  ggplot(aes(year, year_sum)) +
   geom_line() +
   theme_minimal(base_size = 16) +
+  scale_y_continuous(breaks = c(-600000, -400000, -200000, 0,200000, 400000), 
+                     limits = c(-600000, 400000), 
+                     labels = label_comma()) +
   labs(x = "Year",
        y =  "Bee Balance") +
-  ggtitle("Bee Balance in The US") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black") + 
-  scale_y_continuous(breaks = c(-600000, -400000, -200000, 0,200000, 400000, 600000), 
-                     limits = c(-400000, 500000), 
-                     labels = label_comma()) +
-  scale_x_continuous(breaks = c(2015:2021), minor_breaks = seq(2015, 2021, 0.25))
+  ggtitle("Bee Balance in The United States") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black")
 
 ```
 
 
-## Plot 2: Bee Balance per State
+## Bee Balance per State
 
 ```{r}
 #| echo: true
@@ -161,7 +169,7 @@ ggplot(data = temp, aes(x = year, y = bee_balance, color = bee_balance_state)) +
    axis.text.x = element_text(angle=45))
 ```
 
-## Plot 3: Bee Balance on Choropleth Map
+## Bee Balance on Choropleth Map
 
 ```{r}
 #| echo: true
