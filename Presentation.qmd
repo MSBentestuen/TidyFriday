@@ -21,7 +21,9 @@ editor: visual
 
 ```{r}
 #| echo: true
-library(tidyverse)
+library(pacman)
+pacman::p_load(tidyverse, sf, gganimate, gifski, ggpubr, scales, zoo)
+
 colony <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2022/2022-01-11/colony.csv')
 
 knitr::kable(colony %>% 
