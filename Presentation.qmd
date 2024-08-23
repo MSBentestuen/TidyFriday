@@ -141,7 +141,8 @@ US %>%
   labs(x = "Year",
        y =  "Bee Balance") +
   ggtitle("Bee Balance in The United States") +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "black")
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_x_continuous(breaks = c(2015:2021), minor_breaks = seq(2015, 2021, 1))
 
 ```
 
